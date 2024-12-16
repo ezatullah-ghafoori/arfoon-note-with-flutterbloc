@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 
 typedef LoadNotesCallaback = Future<void> Function(); // Define a callback type
 
+// TODO: Make Card Raduise 20 px
+
 class NoteCard extends StatefulWidget {
   final NoteItem noteItem;
   final LoadNotesCallaback loadNotesCallaback;
@@ -60,7 +62,7 @@ class _NoteCardState extends State<NoteCard> {
         child: Card(
           color: Color(widget.noteItem.color),
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(35)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           elevation: 4,
           child: Container(
             // width: 300,
@@ -73,8 +75,11 @@ class _NoteCardState extends State<NoteCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(DateFormat('MMM dd')
-                        .format(widget.noteItem.lastUpdate)),
+                    Transform.translate(
+                      offset: Offset(0, -10),
+                      child: Text(DateFormat('MMM dd')
+                          .format(widget.noteItem.lastUpdate)),
+                    ),
                     IconButton(
                         onPressed: () {
                           setState(() {
@@ -91,7 +96,9 @@ class _NoteCardState extends State<NoteCard> {
                                 : Colors.white,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10))),
-                        icon: const Icon(Icons.push_pin_rounded)),
+                        icon: Transform.rotate(
+                            angle: 120,
+                            child: const Icon(Icons.push_pin_rounded))),
                   ],
                 ),
                 Text(

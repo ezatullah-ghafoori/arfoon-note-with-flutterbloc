@@ -82,7 +82,8 @@ class _NoteState extends State<Note> {
       await widget.note.labels.save();
     });
     setState(() {
-      isEdited = true;
+      // isEdited = true;
+      widget.note = widget.note;
     });
   }
 
@@ -109,7 +110,7 @@ class _NoteState extends State<Note> {
         });
   }
 
-  void saveChanges() async {
+  Future<void> saveChanges() async {
     final isar = await this.isar;
     widget.note.lastUpdate = DateTime.now();
     await isar.writeTxn(() async {
@@ -165,9 +166,12 @@ class _NoteState extends State<Note> {
             actions: [
               TextButton(
                   onPressed: () async {
-                    saveChanges();
+                    try {
+                      await saveChanges();
+                    } catch (e) {
+                      Navigator.pop(context, false);
+                    }
                     Navigator.pop(context, true);
-                    await widget.loadNotes();
                   },
                   child: const Text("Save and Leave")),
               TextButton(
@@ -184,6 +188,9 @@ class _NoteState extends State<Note> {
           );
         });
   }
+
+  // TODO: POP out the select label popup when new label created
+  // TODO: Re fetch data from the Isar when the labels were updated
 
   @override
   @override
@@ -270,8 +277,11 @@ class _NoteState extends State<Note> {
                               children: [
                                 if (widget.note.labels.isNotEmpty)
                                   ConstrainedBox(
-                                    constraints:
-                                        const BoxConstraints(maxWidth: 160),
+                                    constraints: BoxConstraints(
+                                        maxWidth: widget.note.labels.length == 1
+                                            ? 80
+                                            : 160,
+                                        minWidth: 0),
                                     child: SingleChildScrollView(
                                       scrollDirection: Axis.horizontal,
                                       child: Row(
@@ -299,11 +309,14 @@ class _NoteState extends State<Note> {
                                       ),
                                     ),
                                   ),
-                                if (!isCreatingLabel)
-                                  IconButton(
-                                    onPressed: openLabelSelectrDialog,
-                                    icon: const Icon(Icons.add),
-                                  ),
+                                // if (!isCreatingLabel)
+                                //   TextButton(
+                                //     onPressed: openLabelSelectrDialog,
+                                //     child: const Text(
+                                //       "Create Label",
+                                //       style: TextStyle(fontSize: 10),
+                                //     ),
+                                //   ),
                                 Transform.translate(
                                   offset: const Offset(0, 0),
                                   child: SizedBox(
@@ -364,6 +377,7 @@ class _NoteState extends State<Note> {
                                           hideColorPicker();
                                           setState(() {
                                             widget.note.color = colors[i].value;
+                                            isEdited = true;
                                           });
                                         },
                                         child: const Text("")),
