@@ -1,6 +1,6 @@
-import 'package:arfoon_note/repositories/label.dart';
-import 'package:arfoon_note/services/isar_service.dart';
-import 'package:arfoon_note/widgets/LabelDeletion.dart';
+import 'package:arfoon_note/server/models/label.dart';
+import 'package:arfoon_note/server/isar_service.dart';
+import 'package:arfoon_note/frontend/widgets/LabelDeletion.dart';
 import 'package:flutter/material.dart';
 
 class CreateLabelDialog extends StatefulWidget {

@@ -1,5 +1,5 @@
-import 'package:arfoon_note/repositories/user.dart';
-import 'package:arfoon_note/services/isar_service.dart';
+import 'package:arfoon_note/server/models/user.dart';
+import 'package:arfoon_note/server/isar_service.dart';
 import 'package:flutter/material.dart';
 
 class CreateUserDialog extends StatefulWidget {

@@ -1,8 +1,8 @@
-import 'package:arfoon_note/repositories/label.dart';
-import 'package:arfoon_note/repositories/user.dart';
-import 'package:arfoon_note/widgets/create_label_dialog.dart';
-import 'package:arfoon_note/widgets/create_user_dialog.dart';
-import 'package:arfoon_note/widgets/settings_dialog.dart';
+import 'package:arfoon_note/server/models/label.dart';
+import 'package:arfoon_note/server/models/user.dart';
+import 'package:arfoon_note/frontend/widgets/create_label_dialog.dart';
+import 'package:arfoon_note/frontend/widgets/create_user_dialog.dart';
+import 'package:arfoon_note/frontend/widgets/settings_dialog.dart';
 import 'package:flutter/material.dart';
 
 class SidebarFooter extends StatefulWidget {

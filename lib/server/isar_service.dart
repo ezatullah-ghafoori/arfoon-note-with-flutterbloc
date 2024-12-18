@@ -1,6 +1,6 @@
-import 'package:arfoon_note/repositories/label.dart';
-import 'package:arfoon_note/repositories/note.dart';
-import 'package:arfoon_note/repositories/user.dart';
+import 'package:arfoon_note/server/models/label.dart';
+import 'package:arfoon_note/server/models/note.dart';
+import 'package:arfoon_note/server/models/user.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 

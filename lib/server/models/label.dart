@@ -1,4 +1,4 @@
-import 'package:arfoon_note/repositories/note.dart';
+import 'package:arfoon_note/server/models/note.dart';
 import 'package:isar/isar.dart';
 
 part 'label.g.dart';

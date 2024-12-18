@@ -1,8 +1,8 @@
-import 'package:arfoon_note/repositories/label.dart';
-import 'package:arfoon_note/repositories/user.dart';
-import 'package:arfoon_note/widgets/sidebar/sidebar_footer.dart';
-import 'package:arfoon_note/widgets/sidebar/sidebar_header.dart';
-import 'package:arfoon_note/widgets/sidebar/sidebar_labels.dart';
+import 'package:arfoon_note/server/models/label.dart';
+import 'package:arfoon_note/server/models/user.dart';
+import 'package:arfoon_note/frontend/widgets/sidebar/sidebar_footer.dart';
+import 'package:arfoon_note/frontend/widgets/sidebar/sidebar_header.dart';
+import 'package:arfoon_note/frontend/widgets/sidebar/sidebar_labels.dart';
 import 'package:flutter/material.dart';
 
 class NoteDrawer extends StatelessWidget {

@@ -1,6 +1,6 @@
-import 'package:arfoon_note/repositories/note.dart';
-import 'package:arfoon_note/screens/note.dart';
-import 'package:arfoon_note/services/isar_service.dart';
+import 'package:arfoon_note/server/models/note.dart';
+import 'package:arfoon_note/frontend/features/note/note.dart';
+import 'package:arfoon_note/server/isar_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

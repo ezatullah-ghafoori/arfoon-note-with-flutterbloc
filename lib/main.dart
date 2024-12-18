@@ -1,4 +1,4 @@
-import 'package:arfoon_note/screens/home.dart';
+import 'package:arfoon_note/frontend/features/home/home.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
