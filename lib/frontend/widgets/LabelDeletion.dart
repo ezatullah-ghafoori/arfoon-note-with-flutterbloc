@@ -1,12 +1,10 @@
-import 'package:arfoon_note/server/models/label.dart';
-import 'package:arfoon_note/server/isar_service.dart';
+import 'package:arfoon_note/client/client.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 class Labeldeletion extends StatefulWidget {
-  final Future<void> Function() updateLabels;
   final int index;
-  const Labeldeletion(
-      {super.key, required this.index, required this.updateLabels});
+  const Labeldeletion({super.key, required this.index});
 
   @override
   State<Labeldeletion> createState() => _LabeldeletionState();
@@ -14,11 +12,12 @@ class Labeldeletion extends StatefulWidget {
 
 class _LabeldeletionState extends State<Labeldeletion> {
   Future<void> deleteLabel() async {
-    final isar = await IsarService().isar;
+    final dir = (await getApplicationDocumentsDirectory()).path;
+    final isar = await openIsar(dir);
     await isar.writeTxn(() async {
       await isar.labels.delete(widget.index);
     });
-    widget.updateLabels();
+
     Navigator.pop(context);
   }
 

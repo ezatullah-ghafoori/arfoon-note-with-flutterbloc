@@ -1,16 +1,15 @@
-import 'package:arfoon_note/server/models/label.dart';
+import 'package:arfoon_note/client/client.dart';
 import 'package:arfoon_note/frontend/widgets/create_label_dialog.dart';
 import 'package:flutter/material.dart';
 
 class LabelSelectorDialog extends StatefulWidget {
   final List<Label> labels;
   final void Function(Label label) addLabelToNote;
-  final Future<void> Function() loadLabels;
-  const LabelSelectorDialog(
-      {super.key,
-      required this.labels,
-      required this.addLabelToNote,
-      required this.loadLabels});
+  const LabelSelectorDialog({
+    super.key,
+    required this.labels,
+    required this.addLabelToNote,
+  });
 
   @override
   State<LabelSelectorDialog> createState() => _LabelSelectorDialogState();
@@ -18,20 +17,17 @@ class LabelSelectorDialog extends StatefulWidget {
 
 class _LabelSelectorDialogState extends State<LabelSelectorDialog> {
   void showCreateLabel() {
-    final Label label = Label();
+    final Label label = Label(name: "");
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return CreateLabelDialog(
-            label: label,
-            isNew: true,
-            loadLabels: widget.loadLabels,
-          );
+          return CreateLabelDialog(label: label, isNew: true);
         });
   }
 
   @override
   Widget build(BuildContext context) {
+    print(widget.labels);
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: SizedBox(
@@ -65,6 +61,7 @@ class _LabelSelectorDialogState extends State<LabelSelectorDialog> {
                                     color: Colors.black, width: 0.5)),
                             onPressed: () {
                               widget.addLabelToNote(widget.labels[i]);
+                              Navigator.pop(context);
                             },
                             child: Text(widget.labels[i].name)),
                       MaterialButton(

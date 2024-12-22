@@ -1,17 +1,19 @@
-import 'package:arfoon_note/server/models/label.dart';
-import 'package:arfoon_note/server/isar_service.dart';
+import 'package:arfoon_note/client/client.dart';
+import 'package:arfoon_note/frontend/bloc/app_bloc.dart';
 import 'package:arfoon_note/frontend/widgets/LabelDeletion.dart';
+import 'package:arfoon_note/server/note_server.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 
 class CreateLabelDialog extends StatefulWidget {
   final Label label;
   final bool isNew;
-  final Future<void> Function() loadLabels;
-  const CreateLabelDialog(
-      {super.key,
-      required this.label,
-      required this.isNew,
-      required this.loadLabels});
+  const CreateLabelDialog({
+    super.key,
+    required this.label,
+    required this.isNew,
+  });
 
   @override
   State<CreateLabelDialog> createState() => _CreateLabelDialogState();
@@ -19,26 +21,26 @@ class CreateLabelDialog extends StatefulWidget {
 
 class _CreateLabelDialogState extends State<CreateLabelDialog> {
   late TextEditingController _labelController;
-  final isar = IsarService().isar;
   Future<void> creatLabel() async {
-    final isar = await this.isar;
-    await isar.writeTxn(() async {
-      await isar.labels.put(widget.label);
-    });
-    widget.loadLabels();
+    final isar =
+        await openIsar((await getApplicationDocumentsDirectory()).path);
+    final noteserver = NoteServer.instance(isar);
+    await noteserver.labels.insert(widget.label);
     Navigator.pop(context);
   }
 
   Future<void> deleteLabel() async {
-    Navigator.pop(context);
-    showDialog(
+    AppBloc appBloc = BlocProvider.of<AppBloc>(context);
+    await showDialog(
         context: context,
         builder: (BuildContext context) {
           return Labeldeletion(
-            index: widget.label.id,
-            updateLabels: widget.loadLabels,
+            index: widget.label.id!.toInt(),
           );
         });
+
+    appBloc.add(AppLoadLabels());
+    Navigator.pop(context);
   }
 
   @override
