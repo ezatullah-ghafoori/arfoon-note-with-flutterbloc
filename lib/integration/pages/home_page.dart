@@ -1,3 +1,5 @@
+import 'package:arfoon_note/client/client.dart';
+import 'package:arfoon_note/client/models/filter.dart';
 import 'package:arfoon_note/frontend/frontend.dart';
 import 'package:flutter/widgets.dart';
 
@@ -6,6 +8,16 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HomeView();
+    return HomeView(
+      getNotes: (Filter filter) async {
+        return [];
+      },
+      getLabels: () async {
+        return [];
+      },
+      addNote: (Note note) async {},
+      onProfileTap: () async {},
+      onSettingTap: () async {},
+    );
   }
 }

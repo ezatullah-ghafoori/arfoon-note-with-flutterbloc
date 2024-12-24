@@ -1,4 +1,5 @@
 import 'package:arfoon_note/client/client.dart';
+import 'package:arfoon_note/client/models/filter.dart';
 import 'package:arfoon_note/frontend/bloc/app_bloc.dart';
 import 'package:arfoon_note/frontend/features/note/note_view.dart';
 import 'package:arfoon_note/frontend/widgets/drawer_widget.dart';
@@ -7,7 +8,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeMobileScafold extends StatefulWidget {
-  const HomeMobileScafold({super.key});
+  final Future<List<Note>> Function(Filter filter) getNotes;
+  final Future<List<Label>> Function() getLabels;
+  final Future<void> Function(Note note) addNote;
+  final Future<void> Function() onSettingTap;
+  final Future<void> Function() onProfileTap;
+
+  const HomeMobileScafold(
+      {super.key,
+      required this.getNotes,
+      required this.getLabels,
+      required this.addNote,
+      required this.onProfileTap,
+      required this.onSettingTap});
 
   @override
   State<HomeMobileScafold> createState() => _HomeMobileScafoldState();
@@ -53,7 +66,12 @@ class _HomeMobileScafoldState extends State<HomeMobileScafold> {
               const Text("Arfoon Note"),
             ],
           )),
-          body: const HomeWidget(),
+          body: HomeWidget(
+            getNotes: widget.getNotes,
+            addNote: widget.addNote,
+            getLabels: widget.getLabels,
+            onSettingTap: widget.onSettingTap,
+          ),
           drawer: const Drawer(
             child: DrawerWidget(),
           ),

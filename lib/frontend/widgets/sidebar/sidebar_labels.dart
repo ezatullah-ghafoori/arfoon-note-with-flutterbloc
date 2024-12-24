@@ -26,8 +26,9 @@ class _SidebarLabelsState extends State<SidebarLabels> {
         context: context,
         builder: (BuildContext context) {
           return CreateLabelDialog(
-            label: label,
-            isNew: false,
+            name: "New Label",
+            onDelete: (name) async {},
+            onSubmit: (name) async {},
           );
         });
 

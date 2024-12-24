@@ -9,14 +9,15 @@ class Note {
   String? details;
   int? colorId;
   List<int> labelIds;
+  bool pinned;
 
-  Note({
-    this.id,
-    this.title,
-    this.details,
-    this.colorId,
-    required this.labelIds,
-  });
+  Note(
+      {this.id,
+      this.title,
+      this.details,
+      this.colorId,
+      required this.labelIds,
+      this.pinned = false});
 
   Note copyWith({
     Id? id,

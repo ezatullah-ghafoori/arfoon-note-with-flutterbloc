@@ -56,7 +56,7 @@ class _HomeDesktopScafoldState extends State<HomeDesktopScafold> {
                 constraints: const BoxConstraints(maxWidth: 300.0),
                 child: const DrawerWidget()),
           ),
-          const Expanded(child: HomeWidget()),
+          // const Expanded(child: HomeWidget()),
           const Expanded(child: NoteView(isDesktop: true))
         ],
       ),

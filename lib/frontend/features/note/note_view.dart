@@ -27,7 +27,10 @@ class _NoteViewState extends State<NoteView> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return const SettingsDialog();
+          return SettingsDialog(
+            onLangChanged: (String? lang) {},
+            onThemeChanged: (String? themeName) {},
+          );
         });
   }
 

@@ -17,11 +17,12 @@ class LabelSelectorDialog extends StatefulWidget {
 
 class _LabelSelectorDialogState extends State<LabelSelectorDialog> {
   void showCreateLabel() {
-    final Label label = Label(name: "");
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return CreateLabelDialog(label: label, isNew: true);
+          return CreateLabelDialog(
+            onSubmit: (name) async {},
+          );
         });
   }
 

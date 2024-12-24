@@ -22,8 +22,7 @@ class _SidebarFooterState extends State<SidebarFooter> {
         context: context,
         builder: (BuildContext context) {
           return CreateLabelDialog(
-            label: label,
-            isNew: true,
+            onSubmit: (name) async {},
           );
         });
 
@@ -46,7 +45,10 @@ class _SidebarFooterState extends State<SidebarFooter> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return const SettingsDialog();
+          return SettingsDialog(
+            onLangChanged: (String? lang) {},
+            onThemeChanged: (String? themeName) {},
+          );
         });
   }
 

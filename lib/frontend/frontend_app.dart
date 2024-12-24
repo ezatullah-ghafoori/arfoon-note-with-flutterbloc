@@ -13,7 +13,9 @@ class FrontendApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Arfoon Note',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.black,
+          ),
           // useMaterial3: true,
         ),
         home: home,
