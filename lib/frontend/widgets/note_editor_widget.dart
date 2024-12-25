@@ -1,20 +1,28 @@
 import 'package:arfoon_note/client/client.dart';
-import 'package:arfoon_note/frontend/bloc/app_bloc.dart';
+import 'package:arfoon_note/frontend/widgets/content_loading_widget.dart';
 import 'package:arfoon_note/frontend/widgets/label_selector_dialog.dart';
 // import 'package:arfoon_note/frontend/widgets/note_editor_bottom_bar.dart';
 import 'package:arfoon_note/server/note_server.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:isar/isar.dart';
-import 'package:path_provider/path_provider.dart';
 
 class NoteEditorWidget extends StatefulWidget {
   final Note note;
+  final Future<List<Label>> Function() loadLabels;
+  final List<int>? colorSet;
   final void Function(int color) setBgColor;
+  final Future<void> Function(int? labelId) onLabelDelete;
+  final Future<void> Function(Note note) onNoteSave;
+
   const NoteEditorWidget(
-      {super.key, required this.note, required this.setBgColor});
+      {super.key,
+      required this.note,
+      required this.setBgColor,
+      required this.loadLabels,
+      required this.colorSet,
+      required this.onLabelDelete,
+      required this.onNoteSave});
 
   @override
   State<NoteEditorWidget> createState() => _NoteEditorWidgetState();
@@ -23,48 +31,32 @@ class NoteEditorWidget extends StatefulWidget {
 class _NoteEditorWidgetState extends State<NoteEditorWidget> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _detailsController = TextEditingController();
+  bool isLoading = false;
 
   double colorPalatePostiotion = -350;
-  List<Color> colors = [Colors.amber, Colors.blue, Colors.white, Colors.pink];
+  List<int> colors = [
+    Colors.amber.value,
+    Colors.blue.value,
+    Colors.white.value,
+    Colors.pink.value
+  ];
   bool isEdited = false;
   late String dir;
   late Isar isar;
   late NoteServer noteServer;
-  bool isInitialized = false;
+  List<Label> noteLabels = [];
 
-  Future<void> handleOntitleChange(AppBloc appBloc) async {
+  Future<void> handleOntitleChange() async {
     widget.note.title = _titleController.text;
     setState(() {
       isEdited = true;
     });
   }
 
-  Future<void> handleOndetialsChange(AppBloc appBloc) async {
+  Future<void> handleOndetialsChange() async {
     widget.note.details = _detailsController.text;
     setState(() {
       isEdited = true;
-    });
-  }
-
-  Future<void> saveNote() async {
-    final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-    // await noteServer.notes.insert(widget.note);
-    await isar.writeTxn(() async {
-      return await isar.notes.put(widget.note);
-    });
-    appBloc.add(AppLoadNotes());
-  }
-
-  Future<void> loadAsyncInstance() async {
-    final String docDir = (await getApplicationDocumentsDirectory()).path;
-    final Isar isarInstance = await openIsar(docDir);
-    final NoteServer noteServerInstance = NoteServer.instance(isarInstance);
-
-    setState(() {
-      dir = docDir;
-      isar = isarInstance;
-      noteServer = noteServerInstance;
-      isInitialized = true;
     });
   }
 
@@ -78,12 +70,9 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
     super.dispose();
   }
 
-  void addLabelToNote(Label label) {
-    AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-
+  Future<void> addLabelToNote(Label label) async {
     // Create a growable copy of labelIds
     List<int> updatedLabelIds = List<int>.from(widget.note.labelIds);
-
     // Check if the label is already in the list
     if (updatedLabelIds.contains(label.id)) {
       updatedLabelIds.remove(label.id); // Remove the label
@@ -96,28 +85,42 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
 
     // Update the note on the server
     noteServer.notes.updateLabel(widget.note);
-
-    // Reload notes to reflect changes
-    appBloc.add(AppLoadNotes());
   }
 
   void showSelectLabel() {
-    final labels = BlocProvider.of<AppBloc>(context).state.labels;
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return LabelSelectorDialog(
-            addLabelToNote: addLabelToNote,
-            labels: labels,
+            onLabelSelect: addLabelToNote,
+            loadLabels: widget.loadLabels,
+            onNewLabel: () async {},
           );
         });
   }
 
+  Color getTextColor(Color backgroundColor) {
+    double luminance = backgroundColor.computeLuminance();
+
+    return luminance > 0.5 ? Colors.black : Colors.white;
+  }
+
+  void changeNoteColor(int color) {
+    widget.setBgColor(color);
+  }
+
   @override
   void initState() {
-    loadAsyncInstance();
+    colors = widget.colorSet ?? colors;
     _titleController.text = widget.note.title ?? "";
     _detailsController.text = widget.note.details ?? "";
+    widget.loadLabels().then((List<Label> labels) {
+      setState(() {
+        noteLabels = labels
+            .where((label) => widget.note.labelIds.contains(label.id))
+            .toList();
+      });
+    });
     super.initState();
   }
 
@@ -142,7 +145,7 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
               TextButton(
                   onPressed: () async {
                     try {
-                      await saveNote();
+                      await widget.onNoteSave(widget.note);
                     } catch (e) {
                       Navigator.pop(context, false);
                     }
@@ -166,10 +169,6 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-    final noteLabels = appBloc.state.labels
-        .where((label) => widget.note.labelIds.contains(label.id))
-        .toList();
     return PopScope(
       canPop: !isEdited,
       onPopInvokedWithResult: (bool didPop, Object? result) async {
@@ -186,8 +185,8 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
         child: Stack(children: [
           SingleChildScrollView(
             padding: const EdgeInsets.only(bottom: 50),
-            child: !isInitialized
-                ? const Text("Loading")
+            child: isLoading
+                ? const ContentLoadingWidget()
                 : Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -195,27 +194,43 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
+                            style: TextStyle(
+                                color: getTextColor(Color(widget.note.colorId ??
+                                    Colors.white.value))),
                             "Updated at ${DateFormat('MMM dd').format(DateTime.now())}"),
                         TextField(
-                          style: const TextStyle(fontSize: 33),
-                          decoration: const InputDecoration(
+                          style: TextStyle(
+                              fontSize: 33,
+                              color: getTextColor(Color(
+                                  widget.note.colorId ?? Colors.white.value))),
+                          decoration: InputDecoration(
                             hintText: "Untitled",
+                            hintStyle: TextStyle(
+                                color: getTextColor(Color(widget.note.colorId ??
+                                    Colors.white.value))),
                             border: InputBorder.none,
                           ),
                           controller: _titleController,
                           onChanged: (value) {
-                            handleOntitleChange(appBloc);
+                            handleOndetialsChange();
                           },
                         ),
                         TextField(
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                               hintText: "No detials provided....",
+                              hintStyle: TextStyle(
+                                  color: getTextColor(Color(
+                                      widget.note.colorId ??
+                                          Colors.white.value))),
                               border: InputBorder.none),
                           controller: _detailsController,
+                          style: TextStyle(
+                              color: getTextColor(Color(
+                                  widget.note.colorId ?? Colors.white.value))),
                           maxLines: null,
                           keyboardType: TextInputType.multiline,
                           onChanged: (value) {
-                            handleOndetialsChange(appBloc);
+                            handleOndetialsChange();
                           },
                         ),
                       ],
@@ -239,12 +254,22 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                             for (int i = 0; i < noteLabels.length; i++)
                               TextButton(
                                   onPressed: () {
-                                    addLabelToNote(noteLabels[i]);
+                                    widget.onLabelDelete(noteLabels[i].id);
                                   },
-                                  child: Text(noteLabels[i].name)),
+                                  child: Text(
+                                      style: TextStyle(
+                                          color: getTextColor(Color(
+                                              widget.note.colorId ??
+                                                  Colors.white.value))),
+                                      noteLabels[i].name)),
                             TextButton(
                                 onPressed: showSelectLabel,
-                                child: const Text("Create Label")),
+                                child: Text(
+                                    style: TextStyle(
+                                        color: getTextColor(Color(
+                                            widget.note.colorId ??
+                                                Colors.white.value))),
+                                    "Create Label")),
                           ],
                         ),
                       ),
@@ -281,16 +306,12 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                           Container(
                             margin: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                                color: colors[i],
+                                color: Color(colors[i]),
                                 borderRadius: BorderRadius.circular(50)),
                             child: TextButton(
                                 onPressed: () {
                                   hideColorPicker();
-                                  setState(() {
-                                    widget.note.colorId = colors[i].value;
-                                    isEdited = true;
-                                  });
-                                  widget.setBgColor(colors[i].value);
+                                  changeNoteColor(colors[i]);
                                 },
                                 child: const Text("")),
                           )

@@ -27,11 +27,12 @@ class _LabeldeletionState extends State<Labeldeletion> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 320),
         child: SizedBox(
-          height: 180,
+          height: 220,
           child: Padding(
             padding: const EdgeInsets.only(top: 10.0, bottom: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),

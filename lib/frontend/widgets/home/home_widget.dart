@@ -1,11 +1,10 @@
 import 'package:arfoon_note/client/client.dart';
 import 'package:arfoon_note/client/models/filter.dart';
-import 'package:arfoon_note/frontend/bloc/app_bloc.dart';
+import 'package:arfoon_note/frontend/widgets/content_loading_widget.dart';
+import 'package:arfoon_note/frontend/widgets/loadin_widget.dart';
 import 'package:arfoon_note/frontend/widgets/note_card_widget.dart';
 import 'package:arfoon_note/frontend/widgets/widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart';
 
 class HomeWidget extends StatefulWidget {
   final Future<List<Note>> Function(Filter filter) getNotes;
@@ -27,41 +26,54 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
-  void loadNotesBySelectedLabel(String labelName) {
-    AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-    appBloc.add(AppLoadNotes(selectedLabel: labelName));
-  }
-
   List<Note> notes = [];
   List<Label> labels = [];
   Label currentLabel = Label(
-    name: "all",
+    name: "All",
   );
+  bool isLoading = false;
+  bool isError = false;
 
   @override
-  Widget build(BuildContext context) {
-    AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-
+  void initState() {
     // Future Call for getting notes
     widget.getNotes(const Filter()).then((res) {
       setState(() {
         notes = res;
       });
     });
-
     //Future call for getting labels
     widget.getLabels().then((res) {
       setState(() {
         labels = res;
       });
     });
+    super.initState();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Search(onSearch: (value) {
-            appBloc.add(AppLoadNotes(searchQuery: value));
+          Search(onSearch: (value) async {
+            setState(() {
+              isLoading = true;
+            });
+            try {
+              List<Note> notes =
+                  await widget.getNotes(Filter(search: value.toLowerCase()));
+              setState(() {
+                notes = notes;
+                isLoading = false;
+              });
+            } catch (e) {
+              setState(() {
+                isLoading = false;
+                isError = true;
+              });
+            }
           }),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -70,14 +82,29 @@ class _HomeWidgetState extends State<HomeWidget> {
               child: Row(
                 children: [
                   TextButton(
-                    onPressed: () {
-                      loadNotesBySelectedLabel("all");
+                    onPressed: () async {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      try {
+                        List<Note> notes =
+                            await widget.getNotes(const Filter());
+                        setState(() {
+                          notes = notes;
+                          isLoading = false;
+                          currentLabel = Label(name: "All");
+                        });
+                      } catch (e) {
+                        setState(() {
+                          isLoading = false;
+                          isError = true;
+                        });
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
-                      // margin: const EdgeInsets.fromLTRB(6, 4, 6, 4),
                       decoration: BoxDecoration(
-                          color: currentLabel.name == 'all'
+                          color: currentLabel.name == 'All'
                               ? Colors.black
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(10),
@@ -86,7 +113,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                       child: Text(
                         "All",
                         style: TextStyle(
-                          color: currentLabel.name == 'all'
+                          color: currentLabel.name == 'All'
                               ? Colors.white
                               : Colors.black,
                         ),
@@ -95,8 +122,24 @@ class _HomeWidgetState extends State<HomeWidget> {
                   ),
                   for (int i = 0; i < labels.length; i++)
                     TextButton(
-                      onPressed: () {
-                        loadNotesBySelectedLabel(labels[i].name);
+                      onPressed: () async {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        try {
+                          List<Note> notes = await widget
+                              .getNotes(Filter(labelId: labels[i].id));
+                          setState(() {
+                            notes = notes;
+                            isLoading = false;
+                            currentLabel = labels[i];
+                          });
+                        } catch (e) {
+                          setState(() {
+                            isLoading = false;
+                            isError = true;
+                          });
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
@@ -122,15 +165,45 @@ class _HomeWidgetState extends State<HomeWidget> {
               ),
             ),
           ),
-          if (notes.isEmpty)
-            const Text("No Notes")
+          if (isError)
+            Column(
+              children: [
+                const Text("Ohh, we are sorry!"),
+                const Text("Something went wrong..."),
+                TextButton(
+                    onPressed: () async {
+                      setState(() {
+                        isError = false;
+                        isLoading = true;
+                      });
+                      try {
+                        List<Note> notes =
+                            await widget.getNotes(const Filter());
+                        setState(() {
+                          notes = notes;
+                        });
+                      } catch (e) {
+                        setState(() {
+                          isError = true;
+                          isLoading = true;
+                        });
+                      }
+                    },
+                    child: const Text("Try Again"))
+              ],
+            )
+          else if (notes.isEmpty || isLoading)
+            const ContentLoadingWidget()
           else
             for (int i = 0; i < notes.length; i++)
               Dismissible(
                   key: Key(i.toString()),
                   direction: DismissDirection.horizontal,
                   onDismissed: (direction) async {},
-                  child: NoteCardWidget(note: notes[i]))
+                  child: NoteCardWidget(
+                    note: notes[i],
+                    getLabels: widget.getLabels,
+                  ))
         ],
       ),
     );

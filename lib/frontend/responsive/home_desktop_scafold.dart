@@ -1,10 +1,7 @@
 import 'package:arfoon_note/client/client.dart';
-import 'package:arfoon_note/frontend/bloc/app_bloc.dart';
 import 'package:arfoon_note/frontend/features/note/note_view.dart';
 import 'package:arfoon_note/frontend/widgets/drawer_widget.dart';
-import 'package:arfoon_note/frontend/widgets/home/home_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeDesktopScafold extends StatefulWidget {
   const HomeDesktopScafold({super.key});
@@ -16,10 +13,7 @@ class HomeDesktopScafold extends StatefulWidget {
 class _HomeDesktopScafoldState extends State<HomeDesktopScafold> {
   @override
   void initState() {
-    final appBloc = BlocProvider.of<AppBloc>(context);
     // Fire the AppLoadNotes Event Home page
-    appBloc.add(AppLoadNotes());
-    appBloc.add(AppLoadLabels());
     super.initState();
   }
 
@@ -28,13 +22,17 @@ class _HomeDesktopScafoldState extends State<HomeDesktopScafold> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-          appBloc.add(AppSetCurrentNote(note: Note(labelIds: [])));
           await Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      const NoteView(isNew: true)));
+                  builder: (BuildContext context) => NoteView(
+                        onSettingTap: () async {},
+                        loadLabels: () async {
+                          return [];
+                        },
+                        onLabelDelete: (int? labelId) async {},
+                        onNoteSave: (Note note) async {},
+                      )));
         },
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
@@ -57,7 +55,16 @@ class _HomeDesktopScafoldState extends State<HomeDesktopScafold> {
                 child: const DrawerWidget()),
           ),
           // const Expanded(child: HomeWidget()),
-          const Expanded(child: NoteView(isDesktop: true))
+          Expanded(
+              child: NoteView(
+            isDesktop: true,
+            onSettingTap: () async {},
+            loadLabels: () async {
+              return [];
+            },
+            onLabelDelete: (int? labelId) async {},
+            onNoteSave: (Note note) async {},
+          ))
         ],
       ),
     );

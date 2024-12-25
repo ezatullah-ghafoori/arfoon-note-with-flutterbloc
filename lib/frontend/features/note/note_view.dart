@@ -1,15 +1,26 @@
 import 'package:arfoon_note/client/client.dart';
-import 'package:arfoon_note/frontend/bloc/app_bloc.dart';
+import 'package:arfoon_note/frontend/widgets/loadin_widget.dart';
 import 'package:arfoon_note/frontend/widgets/note_editor_widget.dart';
-import 'package:arfoon_note/frontend/widgets/settings_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart';
 
 class NoteView extends StatefulWidget {
-  final bool isNew;
   final bool isDesktop;
-  const NoteView({super.key, this.isNew = false, this.isDesktop = false});
+  final Future<List<Label>> Function() loadLabels;
+  final Future<void> Function(int? labelId) onLabelDelete;
+  final Future<void> Function(Note note) onNoteSave;
+  final Future<void> Function() onSettingTap;
+
+  final Note? note;
+  final List<int>? colorSet;
+  const NoteView(
+      {super.key,
+      this.note,
+      this.colorSet,
+      this.isDesktop = false,
+      required this.loadLabels,
+      required this.onLabelDelete,
+      required this.onNoteSave,
+      required this.onSettingTap});
 
   @override
   State<NoteView> createState() => _NoteViewState();
@@ -17,89 +28,80 @@ class NoteView extends StatefulWidget {
 
 class _NoteViewState extends State<NoteView> {
   int bgColor = Colors.white.value;
+  Note note = Note(labelIds: []);
+  bool isLoading = false;
+
   void setBgColor(int color) {
     setState(() {
       bgColor = color;
+      note.colorId = color;
     });
-  }
-
-  void showSettings() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SettingsDialog(
-            onLangChanged: (String? lang) {},
-            onThemeChanged: (String? themeName) {},
-          );
-        });
-  }
-
-  Future<void> saveNote() async {
-    AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-    final String dir = (await getApplicationDocumentsDirectory()).path;
-    final isar = await openIsar(dir);
-    // await noteServer.notes.insert(widget.note);
-    await isar.writeTxn(() async {
-      return await isar.notes.put(appBloc.state.currentNote!);
-    });
-    appBloc.add(AppLoadNotes());
-  }
-
-  void setNewNote() {
-    AppBloc appBloc = BlocProvider.of<AppBloc>(context);
-    if (widget.isDesktop && widget.isNew && appBloc.state.currentNote != null) {
-      appBloc.add(AppSetCurrentNote(note: Note(labelIds: [])));
-    }
   }
 
   @override
   void initState() {
+    setState(() {
+      note = widget.note ?? note;
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    setNewNote();
-    return BlocBuilder<AppBloc, AppState>(
-      builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: widget.isNew
-                ? Color(bgColor)
-                : state.currentNote != null
-                    ? Color(state.currentNote!.colorId ?? 0xFFFFFFFF)
-                    : Colors.white,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (!widget.isDesktop)
-                  IconButton(
-                      onPressed: showSettings,
-                      icon: const Icon(Icons.more_vert_rounded))
-                else
-                  TextButton(
-                      onPressed: saveNote,
-                      style: TextButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white),
-                      child: const Text("Save"))
-              ],
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: widget.note?.colorId != null
+            ? Color(widget.note!.colorId!)
+            : Color(bgColor),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            if (!widget.isDesktop)
+              IconButton(
+                  onPressed: () async {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    await widget.onSettingTap();
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                  icon: const Icon(Icons.more_vert_rounded))
+            else
+              TextButton(
+                  onPressed: () async {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    await widget.onNoteSave(note);
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white),
+                  child: isLoading
+                      ? const LoadinWidget(width: 20)
+                      : const Text("Save"))
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: NoteEditorWidget(
+              colorSet: widget.colorSet,
+              note: note,
+              loadLabels: widget.loadLabels,
+              setBgColor: setBgColor,
+              onLabelDelete: (int? labelId) async {},
+              onNoteSave: widget.onNoteSave,
             ),
-          ),
-          body: Column(
-            children: [
-              Expanded(
-                child: NoteEditorWidget(
-                  note: state.currentNote != null
-                      ? state.currentNote!
-                      : Note(labelIds: []),
-                  setBgColor: setBgColor,
-                ),
-              )
-            ],
-          ),
-        );
-      },
+          )
+        ],
+      ),
     );
   }
 }

@@ -1,9 +1,7 @@
 import 'package:arfoon_note/client/client.dart';
-import 'package:arfoon_note/frontend/bloc/app_bloc.dart';
 import 'package:arfoon_note/frontend/widgets/create_label_dialog.dart';
 import 'package:arfoon_note/frontend/widgets/settings_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarFooter extends StatefulWidget {
   const SidebarFooter({
@@ -16,7 +14,6 @@ class SidebarFooter extends StatefulWidget {
 
 class _SidebarFooterState extends State<SidebarFooter> {
   void showCreateLabel() async {
-    final appBloc = BlocProvider.of<AppBloc>(context);
     final Label label = Label(name: '');
     await showDialog(
         context: context,
@@ -25,8 +22,6 @@ class _SidebarFooterState extends State<SidebarFooter> {
             onSubmit: (name) async {},
           );
         });
-
-    appBloc.add(AppLoadLabels());
   }
 
   void showCreateUser() {

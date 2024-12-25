@@ -1,34 +1,32 @@
 import 'package:arfoon_note/client/client.dart';
-import 'package:arfoon_note/frontend/widgets/create_label_dialog.dart';
+import 'package:arfoon_note/frontend/widgets/loadin_widget.dart';
 import 'package:flutter/material.dart';
 
 class LabelSelectorDialog extends StatefulWidget {
-  final List<Label> labels;
-  final void Function(Label label) addLabelToNote;
-  const LabelSelectorDialog({
-    super.key,
-    required this.labels,
-    required this.addLabelToNote,
-  });
+  final Future<List<Label>> Function() loadLabels;
+  final Future<void> Function(Label label) onLabelSelect;
+  final Future<void> Function() onNewLabel;
+  const LabelSelectorDialog(
+      {super.key,
+      required this.loadLabels,
+      required this.onLabelSelect,
+      required this.onNewLabel});
 
   @override
   State<LabelSelectorDialog> createState() => _LabelSelectorDialogState();
 }
 
 class _LabelSelectorDialogState extends State<LabelSelectorDialog> {
-  void showCreateLabel() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CreateLabelDialog(
-            onSubmit: (name) async {},
-          );
-        });
-  }
+  bool isLoading = false;
+  List<Label> labels = [];
 
   @override
   Widget build(BuildContext context) {
-    print(widget.labels);
+    widget.loadLabels().then((res) {
+      setState(() {
+        labels = res;
+      });
+    });
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: SizedBox(
@@ -54,27 +52,42 @@ class _LabelSelectorDialogState extends State<LabelSelectorDialog> {
                   child: Wrap(
                     spacing: 8,
                     children: [
-                      for (int i = 0; i < widget.labels.length; i++)
+                      for (int i = 0; i < labels.length; i++)
                         MaterialButton(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 side: const BorderSide(
                                     color: Colors.black, width: 0.5)),
-                            onPressed: () {
-                              widget.addLabelToNote(widget.labels[i]);
-                              Navigator.pop(context);
+                            onPressed: () async {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              await widget.onLabelSelect(labels[i]);
+                              setState(() {
+                                isLoading = false;
+                              });
                             },
-                            child: Text(widget.labels[i].name)),
+                            child: isLoading
+                                ? const LoadinWidget(width: 30)
+                                : Text(labels[i].name)),
                       MaterialButton(
                           color: const Color.fromARGB(101, 231, 231, 231),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                               side: const BorderSide(
                                   color: Colors.black, width: 0.5)),
-                          onPressed: () {
-                            showCreateLabel();
+                          onPressed: () async {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            await widget.onNewLabel();
+                            setState(() {
+                              isLoading = false;
+                            });
                           },
-                          child: const Text("+")),
+                          child: isLoading
+                              ? const LoadinWidget(width: 30)
+                              : const Text("+")),
                     ],
                   ),
                 )

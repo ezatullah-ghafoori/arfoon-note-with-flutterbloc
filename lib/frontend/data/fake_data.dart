@@ -3,31 +3,32 @@ import 'package:arfoon_note/client/client.dart';
 class FakeData {
   final List<Note> _notes = [
     Note(
-        labelIds: [],
+        labelIds: [2, 3],
         title: "This is a random title 1",
         details: "This is a random note 1",
         pinned: true),
     Note(
-      labelIds: [],
+      labelIds: [1, 4],
       title: "This is a random title 2",
       details: "This is a random note 2",
     ),
     Note(
-      labelIds: [],
+      labelIds: [1, 2, 3, 4],
       title: "This is a random title 3",
       details: "This is a random note 3",
     ),
     Note(
-      labelIds: [],
+      labelIds: [2],
       title: "This is a random title 4",
       details: "This is a random note 4",
     )
   ];
   final List<Label> _labels = [
-    Label(name: "Office", details: "Some random detials for the label"),
-    Label(name: "Ahmad", details: "Some random detials for the label"),
-    Label(name: "Random", details: "Some random detials for the label"),
-    Label(name: "Not Sure", details: "Some random detials for the label"),
+    Label(id: 1, name: "Office", details: "Some random detials for the label"),
+    Label(id: 2, name: "Ahmad", details: "Some random detials for the label"),
+    Label(id: 3, name: "Random", details: "Some random detials for the label"),
+    Label(
+        id: 4, name: "Not Sure", details: "Some random detials for the label"),
   ];
   String _username = "Ezatullah Ghafoori";
 
