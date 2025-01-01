@@ -36,6 +36,11 @@ class HomeExample extends StatelessWidget {
                           },
                           onProfileTap: () async {},
                           onSettingTap: () async {},
+                          onLabelUpdate: (Label label) async {},
+                          loadUserName: () async {
+                            return "Ahmad Khan";
+                          },
+                          onNewLabel: () async {},
                         );
                       }));
                     },
@@ -53,7 +58,7 @@ class HomeExample extends StatelessWidget {
                             height: 15,
                           ),
                           Text(
-                              "Push to HomeExample and Example returns HomeView with calls of getNote(file), getLabels, addNote, onSettingTap, onProfileTap.")
+                              "Push to HomeExample and Example returns HomeView with calls of getNote(file), getLabels, addNote, onSettingTap, onProfileTap, Future<void> Function(Label label) onLabelUpdate, Future<String> Function() loadUserName, Future<void> Function() onNewLabel.")
                         ],
                       ),
                     ),

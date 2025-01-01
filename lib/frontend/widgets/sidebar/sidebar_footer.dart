@@ -4,8 +4,16 @@ import 'package:arfoon_note/frontend/widgets/settings_dialog.dart';
 import 'package:flutter/material.dart';
 
 class SidebarFooter extends StatefulWidget {
+  final Future<String> Function() loadUserName;
+  final Future<void> Function() onProfileCLicked;
+  final Future<void> Function() onSettingsClicked;
+  final Future<void> Function() onNewLabel;
   const SidebarFooter({
     super.key,
+    required this.loadUserName,
+    required this.onProfileCLicked,
+    required this.onNewLabel,
+    required this.onSettingsClicked,
   });
 
   @override
@@ -13,43 +21,32 @@ class SidebarFooter extends StatefulWidget {
 }
 
 class _SidebarFooterState extends State<SidebarFooter> {
-  void showCreateLabel() async {
-    final Label label = Label(name: '');
-    await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CreateLabelDialog(
-            onSubmit: (name) async {},
-          );
-        });
+  String username = "Login";
+
+  Future<void> loadUsername() async {
+    String name = await widget.loadUserName();
+    setState(() {
+      username = name.isEmpty ? "Login" : name;
+    });
   }
 
-  void showCreateUser() {
-    // final User user = widget.users.isEmpty ? User() : widget.users[0];
-    // showDialog(
-    //     context: context,
-    //     builder: (BuildContext context) {
-    //       return CreateUserDialog(
-    //         user: user,
-    //         loadeUser: widget.loadUsers,
-    //       );
-    //     });
-  }
+  String greetingTime() {
+    int currentHour = DateTime.now().hour;
 
-  void showSettings() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SettingsDialog(
-            onLangChanged: (String? lang) {},
-            onThemeChanged: (String? themeName) {},
-          );
-        });
+    if (currentHour >= 5 && currentHour < 12) {
+      return "Good Morning";
+    } else if (currentHour >= 12 && currentHour < 17) {
+      return "Good Afternoon";
+    } else if (currentHour >= 17 && currentHour < 21) {
+      return "Good Evening";
+    } else {
+      return "Good Night";
+    }
   }
 
   @override
   void initState() {
-    // TODO: implement initState
+    loadUsername();
     super.initState();
   }
 
@@ -59,7 +56,7 @@ class _SidebarFooterState extends State<SidebarFooter> {
       children: [
         MaterialButton(
           onPressed: () {
-            showCreateLabel();
+            widget.onNewLabel();
           },
           child: const Row(
             children: [
@@ -73,7 +70,7 @@ class _SidebarFooterState extends State<SidebarFooter> {
         ),
         MaterialButton(
           onPressed: () {
-            showSettings();
+            widget.onSettingsClicked();
           },
           child: const Row(
             children: [
@@ -87,7 +84,7 @@ class _SidebarFooterState extends State<SidebarFooter> {
         ),
         MaterialButton(
           onPressed: () {
-            showCreateUser();
+            widget.onProfileCLicked();
           },
           child: Row(
             children: [
@@ -98,29 +95,37 @@ class _SidebarFooterState extends State<SidebarFooter> {
                   decoration: BoxDecoration(
                       color: Colors.black,
                       borderRadius: BorderRadius.circular(10)),
-                  child: const Row(
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "LO",
-                        style: TextStyle(color: Colors.white, fontSize: 18),
+                        username.split(" ").length <= 1
+                            ? username.isEmpty
+                                ? "LO"
+                                : username[0] + username[1]
+                            : username.split(" ")[0][0] +
+                                username.split(" ")[1][0],
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 18),
                       ),
                     ],
                   )),
               const SizedBox(
                 width: 10,
               ),
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Login",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    username,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   Text(
-                    "Good Morning",
-                    style: TextStyle(color: Color.fromARGB(163, 99, 95, 95)),
+                    greetingTime(),
+                    style:
+                        const TextStyle(color: Color.fromARGB(163, 99, 95, 95)),
                   ),
                 ],
               )

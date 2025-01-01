@@ -3,7 +3,14 @@ import 'package:arfoon_note/frontend/widgets/create_label_dialog.dart';
 import 'package:flutter/material.dart';
 
 class SidebarLabels extends StatefulWidget {
-  const SidebarLabels({super.key});
+  final Future<void> Function(Label label) onLabelUpdate;
+  final Future<void> Function(Label label) onLabelClick;
+  final List<Label> labels;
+  const SidebarLabels(
+      {super.key,
+      required this.labels,
+      required this.onLabelClick,
+      required this.onLabelUpdate});
 
   @override
   State<SidebarLabels> createState() => _SidebarLabelsState();
@@ -13,19 +20,6 @@ class _SidebarLabelsState extends State<SidebarLabels> {
   @override
   void initState() {
     super.initState();
-  }
-
-  void showCreateLabel(int index, List<Label> labels) async {
-    Label label = labels[index];
-    await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CreateLabelDialog(
-            name: "New Label",
-            onDelete: (name) async {},
-            onSubmit: (name) async {},
-          );
-        });
   }
 
   @override
@@ -40,28 +34,31 @@ class _SidebarLabelsState extends State<SidebarLabels> {
               "Labels",
               style: TextStyle(color: Color.fromARGB(96, 0, 0, 0)),
             ),
-            // if (state.labels.isEmpty)
-            const Text("No labels available"),
+            if (widget.labels.isEmpty) const Text("No labels available"),
             // else
-            // for (int i = 0; i < state.labels.length; i++)
-            MaterialButton(
-              onPressed: () {
-                // showCreateLabel(i, state.labels);
-              },
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      // Image.asset('assets/images/notes.png'),
-                      Icon(Icons.text_snippet),
-                      // Text(state.labels[i].name),
-                    ],
-                  ),
-                  Icon(Icons.edit),
-                ],
-              ),
-            )
+            for (int i = 0; i < widget.labels.length; i++)
+              MaterialButton(
+                onPressed: () {
+                  widget.onLabelClick(widget.labels[i]);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        // Image.asset('assets/images/notes.png'),
+                        const Icon(Icons.text_snippet),
+                        Text(widget.labels[i].name),
+                      ],
+                    ),
+                    IconButton(
+                        onPressed: () {
+                          widget.onLabelUpdate(widget.labels[i]);
+                        },
+                        icon: const Icon(Icons.edit))
+                  ],
+                ),
+              )
           ],
         ),
       ),

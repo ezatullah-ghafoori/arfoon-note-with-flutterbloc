@@ -18,6 +18,11 @@ class HomePage extends StatelessWidget {
       addNote: (Note note) async {},
       onProfileTap: () async {},
       onSettingTap: () async {},
+      onLabelUpdate: (Label label) async {},
+      loadUserName: () async {
+        return "";
+      },
+      onNewLabel: () async {},
     );
   }
 }
