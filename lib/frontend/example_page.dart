@@ -9,14 +9,6 @@ class ExamplePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<ExamplePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

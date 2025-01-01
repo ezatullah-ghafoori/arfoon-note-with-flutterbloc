@@ -1,7 +1,6 @@
 import 'package:arfoon_note/client/client.dart';
 import 'package:arfoon_note/client/models/filter.dart';
 import 'package:arfoon_note/frontend/widgets/content_loading_widget.dart';
-import 'package:arfoon_note/frontend/widgets/loadin_widget.dart';
 import 'package:arfoon_note/frontend/widgets/note_card_widget.dart';
 import 'package:arfoon_note/frontend/widgets/widget.dart';
 import 'package:flutter/material.dart';

@@ -1,6 +1,7 @@
 import 'package:arfoon_note/frontend/widgets/loadin_widget.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class CreateLabelDialog extends StatefulWidget {
   String? name;
   final Future<void> Function(String name)? onSubmit;

@@ -1,10 +1,8 @@
 import 'package:arfoon_note/client/client.dart';
 import 'package:arfoon_note/client/models/filter.dart';
-import 'package:arfoon_note/frontend/frontend.dart';
 import 'package:arfoon_note/frontend/widgets/drawer_widget.dart';
 import 'package:arfoon_note/frontend/widgets/home/home_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
 
 class HomeView extends StatelessWidget {
   final Future<List<Note>> Function(Filter filter) getNotes;
