@@ -110,6 +110,21 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
   }
 
   @override
+  void didUpdateWidget(covariant NoteEditorWidget oldWidget) {
+    colors = widget.colorSet ?? colors;
+    _titleController.text = widget.note.title ?? "";
+    _detailsController.text = widget.note.details ?? "";
+    widget.loadLabels().then((List<Label> labels) {
+      setState(() {
+        noteLabels = labels
+            .where((label) => widget.note.labelIds.contains(label.id))
+            .toList();
+      });
+    });
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void initState() {
     colors = widget.colorSet ?? colors;
     _titleController.text = widget.note.title ?? "";
@@ -169,6 +184,7 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return PopScope(
       canPop: !isEdited,
       onPopInvokedWithResult: (bool didPop, Object? result) async {
@@ -193,11 +209,13 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
-                            style: TextStyle(
-                                color: getTextColor(Color(widget.note.colorId ??
-                                    Colors.white.value))),
-                            "Updated at ${DateFormat('MMM dd').format(DateTime.now())}"),
+                        if (screenWidth < 1000)
+                          Text(
+                              style: TextStyle(
+                                  color: getTextColor(Color(
+                                      widget.note.colorId ??
+                                          Colors.white.value))),
+                              "Updated at ${DateFormat('MMM dd').format(DateTime.now())}"),
                         TextField(
                           style: TextStyle(
                               fontSize: 33,

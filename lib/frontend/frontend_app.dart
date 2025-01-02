@@ -9,11 +9,11 @@ class FrontendApp extends StatelessWidget {
     return MaterialApp(
       title: 'Arfoon Note',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.black,
-        ),
-        // useMaterial3: true,
-      ),
+          // colorScheme: ColorScheme.fromSeed(
+          //   seedColor: Colors.black,
+          // ),
+          // useMaterial3: true,
+          ),
       home: home,
     );
   }

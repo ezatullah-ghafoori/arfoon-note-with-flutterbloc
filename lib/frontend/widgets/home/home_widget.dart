@@ -10,6 +10,7 @@ class HomeWidget extends StatefulWidget {
   final Future<List<Label>> Function() getLabels;
   final Future<void> Function(Note note) addNote;
   final Future<void> Function() onSettingTap;
+  final Future<void> Function(Note note) onCardTap;
   // final Future<void> Function() onProfileTap;
 
   const HomeWidget(
@@ -17,7 +18,7 @@ class HomeWidget extends StatefulWidget {
       required this.getNotes,
       required this.getLabels,
       required this.addNote,
-      // required this.onProfileTap,
+      required this.onCardTap,
       required this.onSettingTap});
 
   @override
@@ -201,6 +202,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                   onDismissed: (direction) async {},
                   child: NoteCardWidget(
                     note: notes[i],
+                    onCardTap: widget.onCardTap,
                     getLabels: widget.getLabels,
                   ))
         ],

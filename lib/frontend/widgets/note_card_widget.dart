@@ -6,11 +6,12 @@ import 'package:intl/intl.dart';
 class NoteCardWidget extends StatefulWidget {
   final Note note;
   final Future<List<Label>> Function() getLabels;
-  const NoteCardWidget({
-    super.key,
-    required this.note,
-    required this.getLabels,
-  });
+  final Future<void> Function(Note note) onCardTap;
+  const NoteCardWidget(
+      {super.key,
+      required this.note,
+      required this.getLabels,
+      required this.onCardTap});
 
   @override
   State<NoteCardWidget> createState() => _NoteCardWidgetState();
@@ -38,18 +39,7 @@ class _NoteCardWidgetState extends State<NoteCardWidget> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => NoteView(
-                      onSettingTap: () async {},
-                      loadLabels: () async {
-                        return [];
-                      },
-                      onLabelDelete: (int? labelId) async {},
-                      onNoteSave: (Note note) async {},
-                      note: widget.note,
-                    )));
+        widget.onCardTap(widget.note);
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
